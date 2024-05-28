@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-/* Board type */
-#define __AVR_ATmega328P__
-
 /* UART setup */
 #define BAUD UPROT_BAUD
 #define F_CPU 16000000UL
