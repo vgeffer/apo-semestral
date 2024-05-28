@@ -2,6 +2,7 @@
 #define __AVRDEFS_H__
 
 #include <stdint.h>
+#include <stddef.h>
 
 /* UART setup */
 #define BAUD UPROT_BAUD
@@ -28,11 +29,6 @@ enum OPFLAGS {
     F_FLG6 = 1 << 6,
     F_FLG7 = 1 << 7
 };
-
-#define NULL (void*)0
-
-static const unsigned int __nan = 0xFFFFFFFF;
-#define NaN *((float*)&__nan)
 
 #define FATAL_ERR() { char f = 1; while( 1 ) set_pin_state(LED_BUILTIN, (f ^= 1)); _delay_ms(500); }
 

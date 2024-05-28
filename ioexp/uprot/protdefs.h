@@ -29,7 +29,7 @@ enum valid_commands {
     CMD_HW_ERR,
     CMD_EMERGENCY,
 
-    CMD_INVAL = 0xFFFF      /* Invalid command, to be used as an invalid state */
+    CMD_INVAL = 0x7FFF      /* Invalid command, to be used as an invalid state */
 };
 
 typedef struct  {
