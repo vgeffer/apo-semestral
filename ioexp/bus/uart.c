@@ -62,7 +62,7 @@ int uart_transmit(uint16_t cmd, uint64_t buf, uint8_t flags) {
         if ( !(flags & F_NOINTR) && get_intr_flag() )
             return E_INTR;
 
-        putc(uprot_packet.data[i], &uart_fp);
+        uart_putc(uprot_packet.data[i], &uart_fp);
     } 
 
     if ( flags & F_NOINTR )
@@ -92,7 +92,7 @@ int uart_recv(uint16_t *cmd, uint64_t *buf, uint8_t flags) {
         if ( !(flags & F_NOINTR) && get_intr_flag() )
             return E_INTR;
 
-        uprot_packet.data[i] = (uint8_t)getc(&uart_fp);
+        uprot_packet.data[i] = (uint8_t)uart_getc(&uart_fp);
     } 
 
     if ( verify_packet(&uprot_packet.packet) < E_OK ) {

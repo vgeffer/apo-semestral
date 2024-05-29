@@ -5,6 +5,7 @@
 #include "dev/gpio.h"
 #include "dev/dht11.h"
 #include "dev/max6675.h"
+#include "interrupts.h"
 #include "uprot/protdefs.h"
 
 #include <math.h>
@@ -36,6 +37,7 @@ void uart_intr_func(void) {
             break;
         }
 
+        /* Retrieve Temp*/
         case CMD_TEMP: {
 
             uint32_t* data_low = ((uint32_t*)&temp_sensor.temp);
@@ -43,6 +45,7 @@ void uart_intr_func(void) {
             break;
         }
 
+        /* Retrieve humidity */
         case CMD_HUMID: {
 
             uint32_t* data_low = ((uint32_t*)&humidity_sensor.humid);
@@ -50,6 +53,7 @@ void uart_intr_func(void) {
             break;
         }
 
+        /* Force refresh is requested */
         case CMD_REFRESH: {
             
             if ( max6675_read_temp(&temp_sensor, &spi) < E_OK || dht11_read_sensor(&humidity_sensor) < E_OK ) 
@@ -67,25 +71,37 @@ void uart_intr_func(void) {
     }
 }
 
+void fatal_err(void) {
+    
+    char f = 1; 
+    while( 1 ) { 
+        
+        set_pin_state(LED_BUILTIN, f); 
+        f = f ^ 1; 
+        _delay_ms(500); 
+    } 
+}
 
 int main(void) {
 
-    /* Init buses */
-    if (uart_init() < E_OK)
-        FATAL_ERR();
-
-    if (spi_init(&spi, 10, 8, 9) < E_OK)
-        FATAL_ERR();
-
-    /* Init devices */
-    if (max6675_init(&temp_sensor, 0) < E_OK)
-        FATAL_ERR();
-
-    if (dht11_init(&humidity_sensor, 0) < E_OK)
-        FATAL_ERR();
-
     set_pin_type(LED_BUILTIN, PIN_OUT);
     set_pin_state(LED_BUILTIN, PIN_LOW);
+
+    /* Init buses */
+    if (uart_init() < E_OK)
+        fatal_err();
+
+    if (spi_init(&spi, 10, 8, 9) < E_OK)
+        fatal_err();
+
+    /* Init devices */
+    if (max6675_init(&temp_sensor, 11) < E_OK)
+        fatal_err();
+
+    if (dht11_init(&humidity_sensor, 12) < E_OK)
+        fatal_err();
+
+    set_intr_func(&uart_intr_func);
 
     float prev_temp = NAN;
     /* Main loop */
@@ -95,12 +111,12 @@ int main(void) {
         /* Poll data every 2 seconds */
         _delay_ms(2000);
 
+        /* Update sensors */
         if ( max6675_read_temp(&temp_sensor, &spi) < E_OK || dht11_read_sensor(&humidity_sensor) < E_OK ) {
         
             uart_transmit(CMD_HW_ERR, 0UL, F_NOINTR);
             continue;
         }
-        
         
         /* Check for temperature variation */
         /* If temps differ by more than 5C, we may assume one of the sensors is faulty */

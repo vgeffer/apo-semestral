@@ -30,6 +30,4 @@ enum OPFLAGS {
     F_FLG7 = 1 << 7
 };
 
-#define FATAL_ERR() { char f = 1; while( 1 ) set_pin_state(LED_BUILTIN, (f ^= 1)); _delay_ms(500); }
-
 #endif
