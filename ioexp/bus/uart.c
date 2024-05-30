@@ -22,11 +22,7 @@ int uart_init(void) {
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
 
-#if USE_2X
     UCSR0A |= _BV(U2X0);
-#else
-    UCSR0A &= ~(_BV(U2X0));
-#endif
 
     UCSR0C = _BV(UCSZ01) | _BV(UCSZ00); /* 8-bit data */
     UCSR0B = _BV(RXEN0) | _BV(TXEN0) | _BV(RXCIE0);
@@ -62,7 +58,7 @@ int uart_transmit(uint16_t cmd, uint64_t buf, uint8_t flags) {
         if ( !(flags & F_NOINTR) && get_intr_flag() )
             return E_INTR;
 
-        uart_putc(uprot_packet.data[i], &uart_fp);
+        putc(uprot_packet.data[i], &uart_fp);
     } 
 
     if ( flags & F_NOINTR )
@@ -92,7 +88,7 @@ int uart_recv(uint16_t *cmd, uint64_t *buf, uint8_t flags) {
         if ( !(flags & F_NOINTR) && get_intr_flag() )
             return E_INTR;
 
-        uprot_packet.data[i] = (uint8_t)uart_getc(&uart_fp);
+        uprot_packet.data[i] = (uint8_t)getc(&uart_fp);
     } 
 
     if ( verify_packet(&uprot_packet.packet) < E_OK ) {
