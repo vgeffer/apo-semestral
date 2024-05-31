@@ -11,5 +11,4 @@
 int gpio_init(void);
 int set_pin(uint8_t pin, uint8_t state);
 
-
 #endif
