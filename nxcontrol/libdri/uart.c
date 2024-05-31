@@ -1,17 +1,19 @@
 #include "uart.h"
+#include "../common.h"
+
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
 
 int uart_init(uart_t* port, const char* uart_dev, int baud, int parity) {
 
-    if ( !port ) return -1;
+    if ( !port ) return E_INVAL;
 
     port->uart_fd = open(uart_dev, O_RDWR | O_NOCTTY | O_SYNC);
-    if ( port->uart_fd < 0 ) return -1;
+    if ( port->uart_fd < 0 ) return E_IOERR;
 
     struct termios tty_uart;
-    if ( tcgetattr(port->uart_fd, &tty_uart) != 0 ) return -1; /* TODO error messages */
+    if ( tcgetattr(port->uart_fd, &tty_uart) != 0 ) return E_IOERR;
 
     cfsetospeed(&tty_uart, baud);
     cfsetispeed(&tty_uart, baud);
@@ -35,8 +37,8 @@ int uart_init(uart_t* port, const char* uart_dev, int baud, int parity) {
     tty_uart.c_oflag = 0;     
     
 
-    if ( tcsetattr(port->uart_fd, TCSANOW, &tty_uart) != 0 ) return -1;    
-    return 0;
+    if ( tcsetattr(port->uart_fd, TCSANOW, &tty_uart) != 0 ) return E_IOERR;    
+    return E_OK;
 }
 
 int uart_putc(uart_t* port, char c){ 
@@ -52,6 +54,6 @@ char uart_getc(uart_t* port) {
     int ret = read(port->uart_fd, &c, 1); 
     usleep(100); /* Wait approx 100us per char */
 
-    if ( ret < 0 ) return -1;
+    if ( ret < 0 ) return E_IOERR;
     return c;
 }

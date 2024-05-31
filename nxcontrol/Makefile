@@ -29,7 +29,7 @@ MODULE    = $(CONFIG_NXCONTROL)
 
 # Hello, World! Example
 
-CSRCS = libdri/gpio.c libdri/shiftreg.c libdrw/drw.c libdrw/screen.c utils/linklist.c
+CSRCS = libdri/gpio.c libdri/shiftreg.c libdri/uart.c libdrw/drw.c libdrw/screen.c libdrw/scrprint.c utils/linklist.c utils/circbuffer.c uprot/protutils.c
 MAINSRC = entry.c
 
 include $(APPDIR)/Application.mk

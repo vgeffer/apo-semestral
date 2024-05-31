@@ -1,4 +1,5 @@
 #include "gpio.h"
+#include "../common.h"
 
 #include <string.h>
 #include <unistd.h>
@@ -38,17 +39,17 @@ int gpio_init(void) {
         to_dev_name(i);
         int fd_gpio = open(dev_name, O_RDWR);
         
-        if ( fd_gpio < 0 ) return -1;
+        if ( fd_gpio < 0 ) return E_IOERR;
         gpio_fds[i] = fd_gpio;
     }
 
-    return 0;
+    return E_OK;
 }
 
 int set_pin(uint8_t pin, uint8_t state) {
 
-    if ( pin >= BOARD_PIN_COUNT ) return -1;
-    if ( gpio_fds[pin] < 0 ) return -1; /* Sanity check */
+    if ( pin >= BOARD_PIN_COUNT ) return E_INVAL;
+    if ( gpio_fds[pin] < 0 ) return E_INVAL; /* Sanity check */
 
     return ioctl(gpio_fds[pin], GPIOC_WRITE, (unsigned long)state); 
 }

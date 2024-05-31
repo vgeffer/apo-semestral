@@ -1,5 +1,7 @@
 #include "protutils.h"
 #include "protdefs.h"
+#include "../common.h"
+
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/poll.h>
@@ -21,8 +23,8 @@ static uint16_t crc16(uint8_t* data, uint16_t size) {
 
 static int make_packet(packet_t* packet, uint16_t command, uint64_t data) {
 
-    if ( packet == NULL )
-        return -1;
+    if ( packet == NULL ) 
+        return E_INVAL;
 
     packet->head = PACKET_HEAD;
 
@@ -33,29 +35,29 @@ static int make_packet(packet_t* packet, uint16_t command, uint64_t data) {
     
     packet->crc = crc16((uint8_t*)packet, (uint16_t)(sizeof(packet_t) - sizeof(uint16_t)));
 
-    return 0;
+    return E_OK;
 }
 
 static int verify_packet(packet_t *packet) {
 
 
     if ( packet == NULL )
-        return -1;
+        return E_INVAL;
 
     /* Check head & tail */
     if ( packet->head != (PACKET_HEAD) || packet->tail != (PACKET_TAIL) )
-        return -1;
+        return E_INVAL;
 
     uint16_t crc = crc16((uint8_t*)packet, (uint16_t)(sizeof(packet_t) - sizeof(uint16_t)));
     if ( packet->crc != crc )
-        return -1;
+        return E_INVAL;
 
-    return 0;
+    return E_OK;
 }
 
 int await_recv(uart_t* port, int max_timeout) {
 
-    if ( !port ) return -1;
+    if ( !port ) return E_INVAL;
 
     struct pollfd pfd = {
         .fd = port->uart_fd,
@@ -63,11 +65,11 @@ int await_recv(uart_t* port, int max_timeout) {
     };
 
     int ret;
-    if ( (ret = poll(&pfd, 1, max_timeout)) < 0 ) return -1;
+    if ( (ret = poll(&pfd, 1, max_timeout)) < 0 ) return E_INVAL;
 
-    if ( ret == 0 ) return 1; /* TODO: some nicer errors */
+    if ( ret == 0 ) return E_TIMEOUT; 
 
-    return 0; /* Data ready to be read */
+    return E_OK; /* Data ready to be read */
 }
 
 int send_packet(uart_t* port, uint16_t cmd, uint64_t data) {
@@ -78,7 +80,7 @@ int send_packet(uart_t* port, uint16_t cmd, uint64_t data) {
     } uprot_packet;
 
 
-    if ( make_packet(&uprot_packet.packet, cmd, data) < 0 ) return -1;
+    if ( make_packet(&uprot_packet.packet, cmd, data) < 0 ) return E_INVAL;
 
     for ( uint8_t i = 0; i < sizeof(packet_t); i++ ) {
 
@@ -86,13 +88,13 @@ int send_packet(uart_t* port, uint16_t cmd, uint64_t data) {
     } 
 
     last_sent = uprot_packet.packet;
-    return 0;
+    return E_OK;
 }
 
 int send_retry_last(uart_t* port) {
 
     if ( last_sent.command == CMD_INVAL )
-        return -1;
+        return E_INVAL;
 
     union {
         packet_t packet;
@@ -104,14 +106,14 @@ int send_retry_last(uart_t* port) {
         uart_putc(port, uprot_packet.data[i]);
     } 
 
-    return 0;
+    return E_OK;
 }
 
 
 int recv_packet(uart_t* port, uint16_t* cmd, uint64_t* data) {
 
     if ( cmd == NULL || data == NULL )
-        return -1;
+        return E_INVAL;
 
     union {
         packet_t packet;
@@ -126,13 +128,13 @@ int recv_packet(uart_t* port, uint16_t* cmd, uint64_t* data) {
 
     if ( verify_packet(&uprot_packet.packet) < 0 ) {
      
-        return -2;
+        return E_INVAL;
     }
 
     *cmd = uprot_packet.packet.command;
     *data = uprot_packet.packet.data;
 
-    return 0;
+    return E_OK;
 }
 
 /* Just calling await and recv but in a more conveninet package! */
