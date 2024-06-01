@@ -1,6 +1,10 @@
+///@file common.h
 #ifndef __COMMON_H__
 #define __COMMON_H__
 
+/**
+ * List of error codes
+*/
 enum error_codes {
 
     E_TIMEOUT = 1,

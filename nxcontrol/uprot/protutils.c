@@ -1,3 +1,4 @@
+///@file protutils.c
 #include "protutils.h"
 #include "protdefs.h"
 #include "../common.h"
@@ -55,6 +56,12 @@ static int verify_packet(packet_t *packet) {
     return E_OK;
 }
 
+/**
+ * Await an incoming packet
+ * @param[in] port UART port
+ * @param[in] max_timeout Time to wait for packet
+ * @return E_OK if data is able to be received, E_INVAL on error, E_TIMEOUT if no data was received in specified time frame
+*/
 int await_recv(uart_t* port, int max_timeout) {
 
     if ( !port ) return E_INVAL;
@@ -72,6 +79,13 @@ int await_recv(uart_t* port, int max_timeout) {
     return E_OK; /* Data ready to be read */
 }
 
+/**
+ * Send packet
+ * @param[in] port UART port
+ * @param[in] cmd Packet's command
+ * @param[in] data Packet's payload
+ * @return E_OK on success, otherwise error
+*/
 int send_packet(uart_t* port, uint16_t cmd, uint64_t data) {
 
     union {
@@ -91,6 +105,11 @@ int send_packet(uart_t* port, uint16_t cmd, uint64_t data) {
     return E_OK;
 }
 
+/**
+ * Re-send last sent packet
+ * @param[in] port UART port
+ * @return E_OK on success, otherwise error
+*/
 int send_retry_last(uart_t* port) {
 
     if ( last_sent.command == CMD_INVAL )
@@ -105,11 +124,15 @@ int send_retry_last(uart_t* port) {
 
         uart_putc(port, uprot_packet.data[i]);
     } 
-
     return E_OK;
 }
 
-
+/**
+ * Receive packet
+ * @param[in] port UART port
+ * @param[out] cmd Received packet's command
+ * @param[out] data Received packet's payload
+*/
 int recv_packet(uart_t* port, uint16_t* cmd, uint64_t* data) {
 
     if ( cmd == NULL || data == NULL )
@@ -137,7 +160,14 @@ int recv_packet(uart_t* port, uint16_t* cmd, uint64_t* data) {
     return E_OK;
 }
 
-/* Just calling await and recv but in a more conveninet package! */
+/**
+ * Just calling await and recv but in a more conveninet package 
+ * @param[in] port UART port
+ * @param[out] cmd Received packet's command
+ * @param[out] data Received packet's payload
+ * @param[in] max_timeout Time to wait for packet
+ * @return E_OK on succes, E_TIMEOUT if no packet received, otherwise error
+*/
 int recv_waitfor_packet(uart_t* port, uint16_t* cmd, uint64_t* data, int max_timeout) {
 
     int ret = await_recv(port, max_timeout);

@@ -14,23 +14,27 @@
 #include <stdio.h>
 #include <unistd.h>
 
+///No problem reported by @a IOExpander
 #define STATE_OK 0
+///Dangerous parameter reported by @a IOExpander
 #define STATE_EMERGENCY 1
+///Measured temperatures differ too much, possible hardware error(s)
 #define STATE_MISMATCH 2
+///Errror during reading the sensors, possible hardware error(s)
 #define STATE_HWERR 3
 
-uart_t UART0 = { .uart_fd = -1 };
-shiftreg_t scr_shr = {
+static uart_t UART0 = { .uart_fd = -1 };
+static shiftreg_t scr_shr = {
     .p_clk = SCREEN_CLK,
     .p_sda = SCREEN_SDA,
     .p_clr = SCREEN_CLR
 };
-screen_t scr;
+static screen_t scr;
 
-float current_temp = NAN; 
-float current_humid = NAN;
+static float current_temp = NAN; 
+static float current_humid = NAN;
 
-int current_state = 0;
+static int current_state = 0;
 
 /**
  * Updates the screen based on the collected data
@@ -75,7 +79,7 @@ void update_screen(void) {
 
 /**
  * Requests and processes updated data from IOExpander
- * @param[out] 0 on succes, otherwise error code
+ * @return 0 on succes, otherwise error code
 */
 int ioexp_update(void) {
 
@@ -194,4 +198,11 @@ int main(void) {
     }
 
     return 0;
+}
+
+/**
+ * Alternate entry point, used when starting the app directly from Nuttx, not from nsh
+*/
+int nxcontrol_entry(void) {
+    return main();
 }

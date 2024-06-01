@@ -1,4 +1,4 @@
-///@file scrptint.c
+///@file scrprint.c
 #include "scrprint.h"
 
 #include "drw.h"
@@ -84,7 +84,7 @@ void unbind_screen(screen_t* scr) {
 
 /**
  * Print string to the screen. Print recognises several special escape sequences to change the foreground color. The change presists only for one call. 
- * To change the foreground color, isert the sequence '\x1b\cc' into the printed string, where cc is the inde
+ * To change the foreground color, isert the sequence '\x1b\cc' into the printed string, where cc is the index of the color in the @b term_colors array.
  * @param[in] scr Screen
  * @param[in] str String to print
  * @return Number of printed characters

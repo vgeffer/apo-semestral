@@ -1,8 +1,17 @@
+///@file spi.c
 #include "spi.h"
 #include "../dev/gpio.h"
 #include <stdint.h>
 #include <util/delay.h>
 
+/**
+ * Initialises SPI bus for sending
+ * @param[in] spi SPI bus struct
+ * @param[in] sck Clock pin
+ * @param[in] miso Host in pin
+ * @param[in] mosi Host out pin
+ * @return E_OK on success, otherwise error
+*/
 int spi_init(spibus_t* spi, uint8_t sck, uint8_t miso, uint8_t mosi) {
 
     if ( !spi ) 
@@ -24,6 +33,11 @@ int spi_init(spibus_t* spi, uint8_t sck, uint8_t miso, uint8_t mosi) {
     return 0;
 }
 
+/**
+ * Read byte from SPI
+ * @param[in] spi SPI bus struct
+ * @return Received byte
+*/
 uint8_t spi_get_byte(spibus_t* spi) {
 
     uint8_t byte = 0;
@@ -50,6 +64,11 @@ uint8_t spi_get_byte(spibus_t* spi) {
     return byte;
 }
 
+/**
+ * Transmit byte to SPI 
+ * @param[in] spi SPI bus struct
+ * @param[in] byte Byte to transmit
+*/
 void spi_put_byte(spibus_t* spi, uint8_t byte) {
 
     /* Prepare for transmission */

@@ -1,3 +1,4 @@
+///@file gpio.c
 #include "gpio.h"
 #include "../common.h"
 
@@ -30,10 +31,15 @@ static void to_dev_name(int pin) {
     dev_name[9] = '0' + ((pin - (pin % 10)) / 10); 
 }
 
+/**
+ * Init GPIO system
+ * @return E_OK on success, otherwise error
+*/
 int gpio_init(void) {
 
     memset(gpio_fds, 0xFF, sizeof(gpio_fds));
 
+    /* Pre-open all of the devices */
     for ( int i = 0; i < BOARD_PIN_COUNT; i++ ) {
 
         to_dev_name(i);
@@ -46,6 +52,12 @@ int gpio_init(void) {
     return E_OK;
 }
 
+/**
+ * Set GPIO pin level
+ * @param[in] pin Pin
+ * @param[in] state Pin level
+ * @return E_OK on success, error otherwise
+*/
 int set_pin(uint8_t pin, uint8_t state) {
 
     if ( pin >= BOARD_PIN_COUNT ) return E_INVAL;

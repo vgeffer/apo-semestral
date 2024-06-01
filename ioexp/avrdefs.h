@@ -1,3 +1,4 @@
+///@file avrdefs.h
 #ifndef __AVRDEFS_H__
 #define __AVRDEFS_H__
 
@@ -5,11 +6,15 @@
 #include <stddef.h>
 
 /* UART setup */
+///Baud rate of the uart port
 #define BAUD UPROT_BAUD
+///Frequency of the MCU's CPU
 #define F_CPU 16000000UL
 #include <util/delay.h>
 
-
+/**
+ * List of errors
+*/
 enum ERRORS {
     E_OK        = 0,
     E_INVALID   = -1,
@@ -19,6 +24,9 @@ enum ERRORS {
     E_TIMEOUT   = -5
 };
 
+/**
+ * List of function flags
+*/
 enum OPFLAGS {
     F_NONBLOCK  = 1 << 0,
     F_NOINTR    = 1 << 1,

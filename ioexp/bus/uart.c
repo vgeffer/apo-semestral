@@ -1,3 +1,4 @@
+///@file uart.c
 #include <stdio.h>
 
 #include "uart.h"
@@ -16,7 +17,24 @@ static int uart_getc(FILE* str);
 static FILE uart_fp = FDEV_SETUP_STREAM(uart_putc, uart_getc, _FDEV_SETUP_RW);
 static packet_t last_packet = { .command = 0xFFFF };
 
+static int uart_putc(char c, FILE* stream) {
+    
+    loop_until_bit_is_set(UCSR0A, TXC0);
+    UDR0 = c;
 
+    return E_OK;
+}
+
+static int uart_getc(FILE* stream) {
+
+    loop_until_bit_is_set(UCSR0A, RXC0);
+    return UDR0;
+}
+
+/**
+ * Initialises the MCU's UART interface
+ * @return E_OK
+*/
 int uart_init(void) {
 
     UBRR0H = UBRRH_VALUE;
@@ -30,6 +48,13 @@ int uart_init(void) {
     return E_OK;
 }
 
+/**
+ * Transmits packet through MCU's UART interface
+ * @param[in] cmd Packet's command
+ * @param[in] buf Packet's payload
+ * @param[in] flags F_NOINTR to disable interrupts during sending, F_RETRY to resend last sent packet
+ * @return E_OK on success, E_INTR if operation has been interrupted by an external interrupt, error otherwise
+*/
 int uart_transmit(uint16_t cmd, uint64_t buf, uint8_t flags) {
 
     /* Prepare packet */    
@@ -68,6 +93,13 @@ int uart_transmit(uint16_t cmd, uint64_t buf, uint8_t flags) {
     return E_OK;
 }
 
+/**
+ * Receive packet from UART
+ * @param[out] cmd Received packet's command
+ * @param[out] buf Received packet's payload
+ * @param[in] flags F_NOINTR to disable interrupts during receiving
+ * @return E_OK on success, E_INTR if operation has been interrupted by an external interrupt, error otherwise 
+*/
 int uart_recv(uint16_t *cmd, uint64_t *buf, uint8_t flags) {
 
     if ( cmd == NULL || buf == NULL )
@@ -106,18 +138,4 @@ int uart_recv(uint16_t *cmd, uint64_t *buf, uint8_t flags) {
         enable_intr();
 
     return E_OK;
-}
-
-static int uart_putc(char c, FILE* stream) {
-    
-    loop_until_bit_is_set(UCSR0A, TXC0);
-    UDR0 = c;
-
-    return E_OK;
-}
-
-static int uart_getc(FILE* stream) {
-
-    loop_until_bit_is_set(UCSR0A, RXC0);
-    return UDR0;
 }

@@ -1,7 +1,14 @@
+///@file circbuffer.c
 #include "circbuffer.h"
 #include "../common.h"
 #include <stdlib.h>
 
+/**
+ * Circular buffer constructor
+ * @param[in] cb Circ buffer
+ * @param[in] len Length to alloc 
+ * @return E_OK on success, otherwise error
+*/
 int cb_create(circ_buffer_t* cb, uint32_t len) {
 
     if ( !cb ) return E_INVAL;
@@ -19,6 +26,10 @@ int cb_create(circ_buffer_t* cb, uint32_t len) {
     return E_OK;
 }
 
+/**
+ * Circular buffed destructor
+ * @param[in] cp Circ buffer
+*/
 void cb_destroy(circ_buffer_t* cb) {
     
     if ( !cb ) return;
@@ -27,6 +38,12 @@ void cb_destroy(circ_buffer_t* cb) {
     free(cb->data);
 }
 
+/**
+ * Push item at the end of the buffer
+ * @param[in] cb Circ buffer
+ * @param[in] item Item to push to the list
+ * @return 0 if buffer is full, 1 otherwise
+*/
 int cb_push(circ_buffer_t* cb, void* item) {
 
     if ( cb->is_full ) return 0;
@@ -43,6 +60,11 @@ int cb_push(circ_buffer_t* cb, void* item) {
     return 1;
 }
 
+/**
+ * Pop item from the start of the buffer
+ * @param[in] cb Circ buffer
+ * @return NULL if list is empty, otherwise item
+*/
 void* cb_pop(circ_buffer_t* cb) {
 
     if ( cb->is_empty ) return NULL;
@@ -58,6 +80,12 @@ void* cb_pop(circ_buffer_t* cb) {
     return item;
 }
 
+/**
+ * Get the i-th item (from the head) of the buffer
+ * @param[in] cb Circ buffer 
+ * @param[in] i Index
+ * @return NULL if index out of bounds, item otherwise
+*/
 void* cb_get(circ_buffer_t* cb, uint32_t i) {
 
     if ( cb->is_empty ) return NULL;
@@ -72,6 +100,11 @@ void* cb_get(circ_buffer_t* cb, uint32_t i) {
     return cb->data[idx];
 }
 
+/**
+ * Get the last item (i = tail) of the buffer
+ * @param[in] cb Circ buffer
+ * @return NULL if list is empty, otherwise item
+*/
 void* cb_getlast(circ_buffer_t* cb) {
 
     if ( cb->is_empty ) return NULL;
@@ -79,6 +112,11 @@ void* cb_getlast(circ_buffer_t* cb) {
 
 }
 
+/**
+ * Get the length of the buffer
+ * @param[in] cb Circ buffer
+ * @return Length of the buffer
+*/
 uint32_t cb_length(circ_buffer_t* cb) {
 
     if ( cb->is_full ) return cb->len;

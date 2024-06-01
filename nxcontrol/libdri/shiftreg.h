@@ -1,8 +1,12 @@
+///@file shiftreg.h
 #ifndef __SHIFTREG_H__
 #define __SHIFTREG_H__
 
 #include <stdint.h>
 
+/**
+ * Structure containing shift register pins
+*/
 typedef struct {
 
     uint8_t p_clk;

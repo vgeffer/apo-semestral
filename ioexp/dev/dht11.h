@@ -24,19 +24,31 @@
     OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/**
+ * @file dht11.h
+ * For documentation refer to https://github.com/adafruit/DHT-sensor-library
+*/
 #ifndef __DHT_11__
 #define __DHT_11__
 
 #include "../avrdefs.h"
 
+/**
+ * Structure containing the state of the DHT11 driver
+*/
 typedef struct {
 
+    ///I/O pin
     uint8_t pin;
+    ///Internal data buffer
     uint8_t data[4];
-    
+    ///Maximum timeout to wait for a pulse
     uint32_t timeout; /* In cycles */
 
-    float temp, humid;
+    ///Last read temperature
+    float temp;
+    ///Last read humidity
+    float humid;
 
 } dht11_t;
 

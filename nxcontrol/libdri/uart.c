@@ -1,3 +1,4 @@
+///@file uart.c
 #include "uart.h"
 #include "../common.h"
 
@@ -5,6 +6,14 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+/**
+ * Initialises serial terminal over UART
+ * @param[in] port UART port
+ * @param[in] uart_dev UART device
+ * @param[in] baud Termios baud rate constant
+ * @param[in] parity Termios parity constatnt
+ * @return E_OK on success, otherwise error
+*/
 int uart_init(uart_t* port, const char* uart_dev, int baud, int parity) {
 
     if ( !port ) return E_INVAL;
@@ -41,13 +50,24 @@ int uart_init(uart_t* port, const char* uart_dev, int baud, int parity) {
     return E_OK;
 }
 
-int uart_putc(uart_t* port, char c){ 
+/**
+ * Put character to UART console
+ * @param[in] port UART port
+ * @param[in] c Character
+ * @return 0 on success, 1 otherwise
+*/
+int uart_putc(uart_t* port, char c) { 
 
     int ret = write(port->uart_fd, &c, 1); 
     usleep(100); /* Wait approx 100us per char */
     return ret;
 }
 
+/**
+ * Get chacter from UART console
+ * @param[in] port UART port
+ * @return -1 on error, otherwise read character
+*/
 char uart_getc(uart_t* port) { 
 
     char c;    
