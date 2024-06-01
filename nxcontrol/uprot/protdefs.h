@@ -18,8 +18,9 @@
 enum valid_commands {
     
     /* Status commands */
-    CMD_OK,                 /* Returning resolved data */
-    CMD_ERR,                /* Error */
+    CMD_OK,                 
+    CMD_ERR,                
+
 
     /* Functional requests (-> arduino)*/
     CMD_TEMP,
@@ -33,14 +34,20 @@ enum valid_commands {
     CMD_INVAL = 0x7FFF      /* Invalid command, to be used as an invalid state */
 };
 
+/**
+ * Structure of the packet sent between IOExpander and ESP32 controller
+*/
 typedef struct  {
 
+    ///Packet header (letters SP)
     uint16_t head;
-    
+    ///Packet's command
     uint16_t command;
+    ///Packet's payload
     uint64_t data;
-
+    ///Packet tail (letters EP)
     uint16_t tail;
+    ///CRC16 checksum
     uint16_t crc;
 
 } packet_t;

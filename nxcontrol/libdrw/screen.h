@@ -1,3 +1,4 @@
+///@file screen.h
 #ifndef __SCREEN_H__
 #define __SCREEN_H__
 
@@ -5,9 +6,14 @@
 #include "../libdri/shiftreg.h"
 #include "../utils/circbuffer.h"
 
-#define SCREEN_WIDTH 320 /* In PX */
+///Screen Width (in pixels)
+#define SCREEN_WIDTH 320
+///Screen Height (in pixels)
 #define SCREEN_HEIGHT 240
 
+/**
+ * List of the supported commands, see ili9341 docs for command explanations
+*/
 enum screen_commands {
 
     NOP         = 0x00,
@@ -66,14 +72,25 @@ enum screen_commands {
     GMCORN      = 0xE1,
 };
 
+/**
+ * Structure containing Char buffers and HW connections of a screen
+*/
 typedef struct {
 
+    /* Char buffer */
+    ///Screen's char buffer
     circ_buffer_t* lines;
+    ///Screen's backgroud color
     uint16_t bg_color;
 
+    /* Screen connections */
+    ///Output shift register interface
     shiftreg_t* scr_out;
+    ///Chip Enable pin
     uint8_t cs;
+    ///Write Enable pin
     uint8_t wr;
+    ///Register Select pin
     uint8_t data;
 
 } screen_t;

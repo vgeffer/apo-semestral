@@ -1,3 +1,4 @@
+///@file entry.c
 #include "common.h"
 #include "config.h"
 #include "libdri/gpio.h"
@@ -13,7 +14,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-
 #define STATE_OK 0
 #define STATE_EMERGENCY 1
 #define STATE_MISMATCH 2
@@ -27,11 +27,14 @@ shiftreg_t scr_shr = {
 };
 screen_t scr;
 
-float current_temp = NAN;
+float current_temp = NAN; 
 float current_humid = NAN;
 
 int current_state = 0;
 
+/**
+ * Updates the screen based on the collected data
+*/
 void update_screen(void) {
 
     char buffer [8]; /* XXXXX.X\00, for float-string converisons */
@@ -70,6 +73,10 @@ void update_screen(void) {
 
 }
 
+/**
+ * Requests and processes updated data from IOExpander
+ * @param[out] 0 on succes, otherwise error code
+*/
 int ioexp_update(void) {
 
     uint16_t cmd = 0;
@@ -102,6 +109,9 @@ int ioexp_update(void) {
     return 0;
 }
 
+/**
+ * Entry point of the app
+*/
 int main(void) {
 
     /* Create screen */

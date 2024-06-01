@@ -1,3 +1,4 @@
+///@file screen.c
 #include "screen.h"
 #include "../libdri/gpio.h"
 #include <unistd.h>
@@ -30,50 +31,67 @@ static const uint8_t display_bootcode[] = {
     0x00                                   
 };
 
-
-void scr_enable(screen_t* scr) {
-
-    /* SET CS LOW */
-    set_pin(scr->cs, PIN_LOW);
-    usleep(1);
-}
-
-void scr_disable(screen_t *scr) {
-
-    /* SET CS HI */
-    usleep(1);
-    set_pin(scr->cs, PIN_HI);
-}
-
+/* Write data to screen */
 static void write_scr(screen_t* scr, uint16_t data) {
 
     sh_writew(scr->scr_out, data);
 
-    /* CLEAR WRITE */
-    /* SET WRITE */
     set_pin(scr->cs, PIN_LOW);
     usleep(1);
     set_pin(scr->cs, PIN_HI);
 }
 
-void scr_command(screen_t *scr, uint16_t cmd) {
+/**
+ * Enable r/w data to/from the screen
+ * @param[in] scr Screen
+*/
+void scr_enable(screen_t* scr) {
 
-    /* SET CMD */
+    set_pin(scr->cs, PIN_LOW);
+    usleep(1);
+}
+
+/**
+ * Disable r/w data to/from the screen
+ * @param[in] scr Screen
+*/
+void scr_disable(screen_t* scr) {
+
+    usleep(1);
+    set_pin(scr->cs, PIN_HI);
+}
+
+/**
+ * Write command to the screen
+ * @param[in] scr Screen
+ * @param[in] cmd Command to send
+*/
+void scr_command(screen_t* scr, uint16_t cmd) {
+
     set_pin(scr->data, PIN_LOW);
     write_scr(scr, cmd);
 }
 
-void scr_data(screen_t *scr, uint16_t data) {
+/**
+ * Write data to the screen
+ * @param[in] src Screen
+ * @param[in] data Data to write
+*/
+void scr_data(screen_t* scr, uint16_t data) {
 
-    /* SET DATA */
     set_pin(scr->data, PIN_HI);
     write_scr(scr, data);
 }
 
-
+/**
+ * Initialises the screen and runs the boot code
+ * @param[in] scr Screen
+ * @param[in] wr Write Enable pin
+ * @param[in] data Register Select pin
+ * @param[in] cs Chip Enable pin
+*/
 void scr_init(screen_t* scr, uint8_t wr, uint8_t data, uint8_t cs) {
 
-    /* Reset screen */
     if ( !scr )
         return;
 
@@ -88,6 +106,11 @@ void scr_init(screen_t* scr, uint8_t wr, uint8_t data, uint8_t cs) {
     uint8_t idx = 0;
     
     scr_enable(scr);
+
+    /* Reset screen */
+    scr_command(scr, SWRST);
+    usleep(500000); /* Wait 500ms after reset */
+
     while ( (cmd = display_bootcode[idx++]) > 0 ) {
 
         /* Write command */
@@ -95,11 +118,13 @@ void scr_init(screen_t* scr, uint8_t wr, uint8_t data, uint8_t cs) {
 
         uint8_t argc = display_bootcode[idx++]; 
 
+        /* If bit 7 is set, wait 150ms (required by some commands) */
         if ( argc & 0x80 )
             usleep(150000); /* 150 ms*/
 
         argc &= 0x7F;
 
+        /* Write arg list */
         for ( ; argc > 0; argc-- )
             scr_data(scr, display_bootcode[idx++]);
     }

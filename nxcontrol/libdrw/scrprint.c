@@ -1,3 +1,4 @@
+///@file scrptint.c
 #include "scrprint.h"
 
 #include "drw.h"
@@ -8,26 +9,42 @@
 #include <stdlib.h>
 #include <string.h>
 
-
+/**
+ * Available terminal colors
+*/
 const uint16_t term_colors[] = {
+    ///Unused 
     0,
+    ///White
     FROM_RGB(255, 255, 255),
+    ///Red
     FROM_RGB(170, 0, 0),
+    ///Green
     FROM_RGB(0, 170, 0),
+    ///Yellow
     FROM_RGB(170, 85, 0),
+    ///Blue
     FROM_RGB(0, 0, 170),
+    ///Magenta
     FROM_RGB(170, 0, 170),
+    ///Cyan
     FROM_RGB(0, 170, 170),
+    ///Ligt Gray
     FROM_RGB(170, 170, 170),
+    ///Dark Gray
     FROM_RGB(85, 85, 85),
+    ///Light Red
     FROM_RGB(255, 85, 85),
+    ///Light Green
     FROM_RGB(85, 255, 85),
+    ///Light Yellow
     FROM_RGB(255, 255, 85),
+    ///Light Blue
     FROM_RGB(85, 85, 255),
+    ///Light Magenta
     FROM_RGB(255, 0, 255),
-    FROM_RGB(0, 255, 255)
-
-    
+    ///Light Cyan
+    FROM_RGB(0, 255, 255)  
 };
 
 static int create_new_line(screen_t* scr) {
@@ -46,25 +63,45 @@ static int create_new_line(screen_t* scr) {
     return E_OK;
 }
 
+/**
+ * Initialise screen's char buffer
+ * @param[in] scr Screen
+ * @return E_OK on success, otherwise error
+*/
 int bind_screen(screen_t* scr) {
     
     return cb_create(scr->lines, SCREEN_HEIGHT / CHAR_HEIGHT);
 }
 
+/**
+ * Destroy screen's char buffer
+ * @param[in] scr Screen
+*/
 void unbind_screen(screen_t* scr) {
+
     cb_destroy(scr->lines);
 }
 
+/**
+ * Print string to the screen. Print recognises several special escape sequences to change the foreground color. The change presists only for one call. 
+ * To change the foreground color, isert the sequence '\x1b\cc' into the printed string, where cc is the inde
+ * @param[in] scr Screen
+ * @param[in] str String to print
+ * @return Number of printed characters
+*/
 int print(screen_t* scr, const char* str) {
 
-    if ( scr->lines->is_empty ) {
+    /* If no line is present, create new line */
+    if ( scr->lines->is_empty ) 
         if ( create_new_line(scr) < 0 ) return 0;
-    }
+    
     scr_char_t* line = (scr_char_t*)cb_getlast(scr->lines);
     
+    /* Get first non-empty index */
     int start = 0;
-    while ( line[start].c != 0 && start < (SCREEN_WIDTH / CHAR_WIDTH) ) start++; /* Get first non-empty index */
+    while ( line[start].c != 0 && start < (SCREEN_WIDTH / CHAR_WIDTH) ) start++; 
     
+    /* Print out string */
     int i = 0;
     uint16_t current_fg = term_colors[1];
     while ( str[i] != '\00' ) {
@@ -129,6 +166,10 @@ int print(screen_t* scr, const char* str) {
     return i;
 }
 
+/**
+ * Clear the sceen's char buffer
+ * @param scr Screen
+*/
 void clear_screen(screen_t* scr) {
     
     while ( !scr->lines->is_empty ) {

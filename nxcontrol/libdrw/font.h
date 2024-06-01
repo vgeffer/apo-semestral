@@ -1,47 +1,20 @@
+///@file font.h
 #ifndef __FONT_H__
 #define __FONT_H__
 
-/*
-
-...XX...24
-..XXXXX.62
-...XXX..28
-.XXXXX..124
-...XX...24
-........0
-
-
-TODO ampersand
-
-........ 0
-..XX..X. 50
-.X..XX.. 76
-........ 0
-........ 0
-........ 0
-
-...XX...24
-..X..X..36
-....X...8
-........0
-....X...8
-
-&
-...XX...24
-..X..X..36
-...XX...24
-.X..XX..76
-..XX.XX.54
-*/
-
 #include <stdint.h>
 
-#define CHAR_WIDTH 8 /* in px */
+///Character width (in pixels)
+#define CHAR_WIDTH 8 
+///Character height (in pixels)
 #define CHAR_HEIGHT 6
 
-/* Last row is always 0 */
-
-const uint8_t font[][CHAR_HEIGHT - 1] = {
+/**
+ * Definitions of all of the printable characters of ASCII (lower half).
+ * Each character has only CHAR_HEIGHT-1 lines defined, as the last one
+ * is empty.
+*/
+const uint8_t font[96][CHAR_HEIGHT - 1] = {
 
     { 0,   0,  0,   0,  0}, /* */
     {24,  24, 24,   0, 24}, /*!*/

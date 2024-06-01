@@ -1,8 +1,11 @@
+///@file drw.c
 #include "drw.h"
 #include "font.h"
 #include "screen.h"
 
+///Screen width in characters
 #define SCR_CHAR_WIDTH SCREEN_WIDTH / CHAR_WIDTH
+///Screen height in characters
 #define SCR_CHAR_HEIGHT SCREEN_HEIGHT / CHAR_HEIGHT
 
 static void set_drawing_line(screen_t* scr, uint16_t line) {
@@ -22,6 +25,10 @@ static void set_drawing_line(screen_t* scr, uint16_t line) {
     scr_disable(scr);
 }
 
+/**
+ * Draws current state of the screen buffer to the screen
+ * @param[in] scr Screen to draw to
+*/
 void draw(screen_t* scr) {
 
     if ( !scr ) return;
@@ -43,6 +50,7 @@ void draw(screen_t* scr) {
 
             for ( int x = 0; x < SCR_CHAR_WIDTH; x++ ) {
 
+                /* Pad out the rest of the line */
                 char c;
                 if ( draw_end ) c = ' ';
                 else c = line[x].c;
@@ -53,9 +61,11 @@ void draw(screen_t* scr) {
                     c = ' ';
                 }
 
+                /* Resolve char from font */
                 uint8_t char_row = font[c - 32][y_c]; 
                 uint16_t color = line[x].col;
 
+                /* Draw it*/
                 for (int x_c = 0; x_c < CHAR_WIDTH; x_c++) {
 
                     uint16_t pix = (((char_row << x_c) & 0x80) >> 7) * color;
