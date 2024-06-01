@@ -17,6 +17,7 @@ NUTTX_PARTITION := https://github.com/espressif/esp-nuttx-bootloader/releases/do
 # Directories
 NUTTX_DIR := nuttx
 NUTTX_APP_DIR := apps
+DOCS_DIR := docs
 BLD_DIR := .build
 BIN_DIR := bin
 
@@ -88,6 +89,12 @@ flash-fw:
 	@printf '$(bold)Flashing ioexp firmware to $(ESP_FLASH_PORT)$(sgr0)\n'
 	$(FLASH_AVR) $(AVR_FLASHFLAGS) -P $(AVR_FLASH_PORT) -U flash:w:$(BIN_DIR)/ioexp-fw.bin
 
+.PHONY: docs
+docs:
+	@stat $(DOCS_DIR)/index.html >/dev/null 2>/dev/null || ( printf '$(bold)Generating documentation$(sgr0)\n' && DOXYGEN_QUIET=YES doxygen )
+	@printf '$(bold)Opening documentation$(sgr0)\n' && \
+	xdg-open $(DOCS_DIR)/index.html
+
 .PHONY: clean
 clean:
 	@printf '$(bold)Removing build files$(sgr0)\n' && \
@@ -98,5 +105,6 @@ clean:
 cleanall: clean
 	@printf '$(bold)Cleaning the project$(sgr0)\n' && \
 	rm -rf $(BIN_DIR) && \
+	rm -rf $(DOCS_DIR) && \
 	rm -rf $(NUTTX_DIR) && \
 	rm -rf $(NUTTX_APP_DIR)
